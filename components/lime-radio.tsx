@@ -16,7 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-export default function Component() {
+export default function LimeRadio() {
   const [nowPlaying, setNowPlaying] = useState<{
     title: string;
     artist: string;
