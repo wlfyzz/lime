@@ -1,14 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUsers, faMusic, faChartLine, faMicrophone, faSignOutAlt } from '@fortawesome/free-solid-svg-icons'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { signOut } from 'next-auth/react'
-import { redirect } from 'next/navigation'
+import { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUsers, faMusic, faChartLine, faMicrophone } from '@fortawesome/free-solid-svg-icons';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { redirect } from 'next/navigation';
 
 interface NowPlaying {
   listeners: {
@@ -45,60 +42,41 @@ interface NowPlaying {
 }
 
 export default function StaffHome() {
-  const { data: session, status } = useSession()
-  const [currentListeners, setCurrentListeners] = useState(0)
-  const [currentTrack, setCurrentTrack] = useState({ title: '', artist: '' })
-  const [peakListeners, setPeakListeners] = useState(0)
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      redirect("/staff/login")
-    }
-  }, [status])
+  const [currentListeners, setCurrentListeners] = useState(0);
+  const [currentTrack, setCurrentTrack] = useState({ title: '', artist: '' });
+  const [peakListeners, setPeakListeners] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://radio.limeradio.net/api/nowplaying/lime')
-        const data: NowPlaying = await response.json()
-        setCurrentListeners(data.listeners.current)
-        setPeakListeners(Math.max(peakListeners, data.listeners.current))
+        const response = await fetch('https://radio.limeradio.net/api/nowplaying/lime');
+        const data: NowPlaying = await response.json();
+        setCurrentListeners(data.listeners.current);
+        setPeakListeners(Math.max(peakListeners, data.listeners.current));
         setCurrentTrack({
           title: data.now_playing.song.title,
-          artist: data.now_playing.song.artist
-        })
+          artist: data.now_playing.song.artist,
+        });
       } catch (error) {
-        console.error('Failed to fetch data:', error)
+        console.error('Failed to fetch data:', error);
       }
-    }
+    };
 
-    fetchData()
-    const interval = setInterval(fetchData, 30000) // Update every 30 seconds
+    fetchData();
+    const interval = setInterval(fetchData, 200); // Update every 30 seconds
 
-    return () => clearInterval(interval)
-  }, [peakListeners])
+    return () => clearInterval(interval);
+  }, [peakListeners]);
 
-  const handleLogout = () => {
-    signOut({ callbackUrl: '/staff/login' })
-  }
-
-  if (status === 'loading') {
-    return <div>Loading...</div>
-  }
-
-  if (!session) {
-    return null
-  }
+  const handleBroadcast = () => {
+    window.location.href = `https://${window.location.host}/staff/auth?callback=/staff/broadcast/login`
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-lime-900 to-lime-950 text-lime-100 p-8">
       <div className="max-w-6xl mx-auto">
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-lime-300">DJ Dashboard</h1>
-          <Button onClick={handleLogout} variant="outline" className="text-lime-300 border-lime-300 hover:bg-lime-800">
-            <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
-            Logout
-          </Button>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -139,7 +117,7 @@ export default function StaffHome() {
               <FontAwesomeIcon icon={faMicrophone} className="text-lime-400" />
             </CardHeader>
             <CardContent>
-              <Button className="w-full bg-lime-600 hover:bg-lime-500 text-lime-950">Start Broadcasting</Button>
+              <Button onClick={handleBroadcast} className="w-full bg-lime-600 hover:bg-lime-500 text-lime-950">Start Broadcasting</Button>
             </CardContent>
           </Card>
         </div>
@@ -169,5 +147,5 @@ export default function StaffHome() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "dev": "next dev"
+  },
   "dependencies": {
     "@fortawesome/free-brands-svg-icons": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
