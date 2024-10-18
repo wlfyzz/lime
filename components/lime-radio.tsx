@@ -3,11 +3,9 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faVolumeHigh, faVolumeMute, faPause, faPlay, faComment, faUser, faMusic } from '@fortawesome/free-solid-svg-icons'
-import { faDiscord } from '@fortawesome/free-brands-svg-icons';
-
+import { faDiscord } from '@fortawesome/free-brands-svg-icons'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -18,7 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-export function LimeRadio() {
+export default function Component() {
   const [nowPlaying, setNowPlaying] = useState<{
     title: string;
     artist: string;
@@ -35,6 +33,7 @@ export function LimeRadio() {
   const [isRequestOpen, setIsRequestOpen] = useState(false)
   const [requestName, setRequestName] = useState('')
   const [requestSong, setRequestSong] = useState('')
+  const [isAnimating, setIsAnimating] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
@@ -53,20 +52,8 @@ export function LimeRadio() {
     }
 
     fetchNowPlaying()
-    const interval = setInterval(fetchNowPlaying, 30000)
+    const interval = setInterval(fetchNowPlaying, 200)
     return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
-    audioRef.current = new Audio('https://audio.limeradio.net:8000/radio.mp3')
-    audioRef.current.volume = volume
-
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current = null
-      }
-    }
   }, [])
 
   useEffect(() => {
@@ -77,14 +64,21 @@ export function LimeRadio() {
   }, [volume, isMuted])
 
   const togglePlay = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
+    setIsAnimating(true)
+    setTimeout(() => setIsAnimating(false), 300) // Animation duration
+
+    if (isPlaying) {
+      if (audioRef.current) {
         audioRef.current.pause()
-      } else {
-        audioRef.current.play()
+        audioRef.current = null
       }
-      setIsPlaying(!isPlaying)
+    } else {
+      // Create a new audio stream
+      audioRef.current = new Audio('https://audio.limeradio.net:8000/radio.mp3')
+      audioRef.current.volume = isMuted ? 0 : volume
+      audioRef.current.play()
     }
+    setIsPlaying(!isPlaying)
   }
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -143,57 +137,54 @@ export function LimeRadio() {
           />
         </div>
         <div className="flex justify-center items-center space-x-6">
-  <Dialog open={isRequestOpen} onOpenChange={setIsRequestOpen}>
-    <DialogTrigger asChild>
-      <button className="text-white hover:text-gray-300">
-        <FontAwesomeIcon icon={faComment} size="lg" />
-      </button>
-    </DialogTrigger>
-    <DialogContent className="sm:max-w-[425px] bg-gradient-to-b from-gray-800 to-gray-700 text-white rounded-lg p-6">
-      <DialogHeader>
-        <DialogTitle className="text-white">Song Request</DialogTitle>
-        <DialogDescription className="text-gray-300">
-          Make a song request. We'll try our best to play it!
-        </DialogDescription>
-      </DialogHeader>
-      <div className="grid gap-4 py-4">
-        <div className="grid grid-cols-1 items-center gap-4">
-          <div className="flex items-center">
-            <FontAwesomeIcon icon={faUser} className="text-white mr-2" />
-            <Input
-              id="name"
-              value={requestName}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRequestName(e.target.value)}
-              className="flex-1 bg-gray-600 text-white rounded-full placeholder-gray-400 border-none"
-              placeholder="Your Name"
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 items-center gap-4">
-          <div className="flex items-center">
-            <FontAwesomeIcon icon={faMusic} className="text-white mr-2" />
-            <Input
-              id="song"
-              value={requestSong}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRequestSong(e.target.value)}
-              className="flex-1 bg-gray-600 text-white rounded-full placeholder-gray-400 border-none"
-              placeholder="Song Title"
-            />
-          </div>
-        </div>
-      </div>
-      <DialogFooter>
-        <Button type="submit" className="bg-gray-500 hover:bg-gray-600 text-white" onClick={handleRequest}>
-          Submit request
-        </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
-          <button onClick={togglePlay} className="bg-lime-500 hover:bg-lime-400 text-lime-900 rounded-full p-4">
+          <Dialog open={isRequestOpen} onOpenChange={setIsRequestOpen}>
+            <DialogTrigger asChild>
+              <button className="text-lime-300 hover:text-lime-100">
+                <FontAwesomeIcon icon={faComment} size="lg" />
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px] bg-gray-800 text-gray-100 border-lime-500">
+              <DialogHeader>
+                <DialogTitle className="text-lime-300">Song Request</DialogTitle>
+                <DialogDescription className="text-gray-400">
+                  Make a song request. We'll try our best to play it!
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="flex items-center gap-4">
+                  <FontAwesomeIcon icon={faUser} className="text-lime-300" />
+                  <Input
+                    id="name"
+                    value={requestName}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRequestName(e.target.value)}
+                    className="flex-1 bg-gray-700 border-gray-600 text-gray-100"
+                    placeholder="Your name"
+                  />
+                </div>
+                <div className="flex items-center gap-4">
+                  <FontAwesomeIcon icon={faMusic} className="text-lime-300" />
+                  <Input
+                    id="song"
+                    value={requestSong}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRequestSong(e.target.value)}
+                    className="flex-1 bg-gray-700 border-gray-600 text-gray-100"
+                    placeholder="Song name"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="submit" onClick={handleRequest} className="bg-lime-500 hover:bg-lime-400 text-gray-900">Submit request</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <button 
+            onClick={togglePlay} 
+            className={`bg-lime-500 hover:bg-lime-400 text-lime-900 rounded-full p-4 transition-transform duration-300 ${isAnimating ? 'scale-90' : ''}`}
+          >
             <FontAwesomeIcon icon={isPlaying ? faPause : faPlay} size="lg" />
           </button>
           <a href="https://discord.gg/limeradio" target="_blank" rel="noopener noreferrer" className="text-lime-300 hover:text-lime-100">
-          <FontAwesomeIcon icon={faDiscord}/>
+            <FontAwesomeIcon icon={faDiscord} size="lg" />
           </a>
         </div>
       </div>
