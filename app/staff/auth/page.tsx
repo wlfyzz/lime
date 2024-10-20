@@ -1,14 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { SignInButton, SignedIn, useAuth } from '@clerk/nextjs';
+import { SignInButton, SignedIn, SignedOut, useAuth } from '@clerk/nextjs';
 
 export default function SignInPage() {
   const { isSignedIn } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams(); // Get the search parameters
-  const callback = searchParams.get('callback')
 
   // Redirect if the user is already signed in
   useEffect(() => {
@@ -20,23 +19,29 @@ export default function SignInPage() {
         router.push('/staff/home'); // Default redirect
       }
     }
-  }, [isSignedIn, router, searchParams, callback]);
+  }, [isSignedIn, router, searchParams]); // Dependencies properly declared
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-lime-900 to-lime-950">
-      <div className="max-w-md w-full bg-lime-800 p-6 rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-lime-300 mb-4">Log in to LimeRadio</h1>
-        <SignedIn>
-          <p className="text-lime-400">Redirecting to {callback || "/staff/home"}</p>
-        </SignedIn>
-        {!isSignedIn && (
-          <SignInButton>
-            Sign In
-          </SignInButton>
-        )}
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-lime-900 to-lime-950">
+        <div className="max-w-md w-full bg-lime-800 p-6 rounded-lg shadow-md">
+          <h1 className="text-2xl font-bold text-lime-300 mb-4">Log in to LimeRadio</h1>
+
+          <SignedIn>
+            <p className="text-lime-400">
+              Redirecting to {searchParams.get('callback') || "/staff/home"}
+            </p>
+          </SignedIn>
+
+          <SignedOut>
+            <SignInButton>
+              Sign In
+            </SignInButton>
+            <AutoSignIn /> {/* Only rendered when signed out */}
+          </SignedOut>
+        </div>
       </div>
-      {!isSignedIn && <AutoSignIn />}
-    </div>
+    </Suspense>
   );
 }
 
