@@ -30,9 +30,7 @@ export default function SignInPage() {
           <p className="text-lime-400">Redirecting to {callback || "/staff/home"}</p>
         </SignedIn>
         {!isSignedIn && (
-          <SignInButton
-            className="w-full bg-lime-600 hover:bg-lime-500 text-lime-950"
-          >
+          <SignInButton>
             Sign In
           </SignInButton>
         )}
