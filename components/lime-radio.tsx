@@ -39,7 +39,7 @@ export function LimeRadio() {
   useEffect(() => {
     const fetchNowPlaying = async () => {
       try {
-        const response = await fetch('https://radio.limeradio.net/api/nowplaying/lime')
+        const response = await fetch(`https://radio.limeradio.net/api/nowplaying/lime?t=${new Date().toISOString()}`);
         const data = await response.json()
         setNowPlaying({
           title: data.now_playing.song.title,

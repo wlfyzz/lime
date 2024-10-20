@@ -1,6 +1,10 @@
-'use client'
+// pages/staff/home.tsx
+'use client';
 
 import { useState, useEffect } from 'react';
+import { useAuth, useUser } from '@clerk/nextjs';
+import Sidebar from "@/components/sidebar"; // Import the Sidebar component
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers, faMusic, faChartLine, faMicrophone } from '@fortawesome/free-solid-svg-icons';
 import { Button } from "@/components/ui/button";
@@ -42,14 +46,29 @@ interface NowPlaying {
 }
 
 export default function StaffHome() {
+  const AuthorisedIDS = ["1137093225576935485"];
+  const { isSignedIn } = useAuth();
+  const { user } = useUser();
   const [currentListeners, setCurrentListeners] = useState(0);
   const [currentTrack, setCurrentTrack] = useState({ title: '', artist: '' });
   const [peakListeners, setPeakListeners] = useState(0);
 
   useEffect(() => {
+    if (!isSignedIn) {
+      redirect('/staff/home');
+      return;
+    }
+
+    const discordId = user?.externalAccounts.find(account => account.provider === 'discord')?.providerUserId;
+
+    if (!discordId || !AuthorisedIDS.includes(discordId)) {
+      redirect("/staff/unauthorised");
+      return;
+    }
+
     const fetchData = async () => {
       try {
-        const response = await fetch('https://radio.limeradio.net/api/nowplaying/lime');
+        const response = await fetch(`https://radio.limeradio.net/api/nowplaying/lime?t=${new Date().toISOString()}`);
         const data: NowPlaying = await response.json();
         setCurrentListeners(data.listeners.current);
         setPeakListeners(Math.max(peakListeners, data.listeners.current));
@@ -63,20 +82,21 @@ export default function StaffHome() {
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 200); // Update every 30 seconds
-
+    const interval = setInterval(fetchData, 20000);
+    
     return () => clearInterval(interval);
-  }, [peakListeners]);
+  }, [isSignedIn, user, peakListeners]);
 
   const handleBroadcast = () => {
-    window.location.href = `https://${window.location.host}/staff/auth?callback=/staff/broadcast/login`
+    // Handle broadcast action
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-lime-900 to-lime-950 text-lime-100 p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen flex">
+      {/* <Sidebar /> */}
+      <div className="flex-1 bg-gradient-to-br from-lime-900 to-lime-950 text-lime-100 p-8">
         <header className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-lime-300">DJ Dashboard</h1>
+          <h1 className="text-3xl font-bold text-lime-300">Staff Dashboard</h1>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -118,30 +138,6 @@ export default function StaffHome() {
             </CardHeader>
             <CardContent>
               <Button onClick={handleBroadcast} className="w-full bg-lime-600 hover:bg-lime-500 text-lime-950">Start Broadcasting</Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="mt-8">
-          <Card className="bg-lime-950 border-lime-700">
-            <CardHeader>
-              <CardTitle className="text-lime-300">Upcoming Schedule</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li className="flex justify-between">
-                  <span>Morning Mix</span>
-                  <span>08:00 - 10:00</span>
-                </li>
-                <li className="flex justify-between">
-                  <span>Lunch Beats</span>
-                  <span>12:00 - 14:00</span>
-                </li>
-                <li className="flex justify-between">
-                  <span>Evening Chill</span>
-                  <span>18:00 - 20:00</span>
-                </li>
-              </ul>
             </CardContent>
           </Card>
         </div>
