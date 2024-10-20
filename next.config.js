@@ -4,9 +4,14 @@ const nextConfig = {
     swcMinify: true,
   }
   
+  
   module.exports = {
     ...nextConfig,
+    experimental: {
+      missingSuspenseWithCSRBailout: false,
+    },
     async rewrites() {
+      
       return [
         {
           source: '/api/auth/:path*',
