@@ -60,7 +60,7 @@ export default function StaffHome() {
 
     const discordId = user?.externalAccounts.find(account => account.provider === 'discord')?.providerUserId;
 
-    if (discordId || !AuthorisedIDS.includes(discordId)) {
+    if (!discordId || !AuthorisedIDS.includes(discordId)) {
       redirect("/staff/unauthorised");
       return;
     }
