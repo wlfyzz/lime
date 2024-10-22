@@ -3,7 +3,7 @@
 export async function GET(request: Request) {
   try {
     const externalRes = await fetch(
-      `https://radio.limeradio.net/api/nowplaying/lime?t=${new Date().toISOString()}`
+      `https://radio.limeradio.net/api/nowplaying/lime?t=${new Date().toISOString()}`, { cache: "no-store" }
     );
 
     if (!externalRes.ok) {
