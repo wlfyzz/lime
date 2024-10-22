@@ -1,32 +1,41 @@
-"use client"; // This line makes the component a Client Component
-
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton
-} from '@clerk/nextjs';
-import { usePathname } from 'next/navigation';
+import ClientWrapper from "@/components/Wrapper";
 import './globals.css';
+
+export const metadata = {
+  title: 'Lime Radio',
+  description: 'Listern to the best hits here at Lime radio',
+  keywords: ['Radio',"Music",`Online Music`],
+  openGraph: {
+    title: 'Lime Radio',
+    description: 'Listern to the best hits here at Lime radio',
+    url: 'https://www.limeradio.net',
+    images: [
+      {
+        url: '/favicon.ico',
+        width: 256,
+        height: 256,
+        alt: 'Favicon',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Lime Radio',
+    description: 'Listern to the best hits here at Lime radio',
+    images: ['/favicon.ico'],
+  },
+};
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-
-  // Check if the current path matches /staff/*
-  const isStaffRoute = pathname.startsWith('/staff');
-
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body>
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <body>
+        <ClientWrapper>{children}</ClientWrapper>
+      </body>
+    </html>
   );
 }

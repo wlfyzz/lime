@@ -39,8 +39,9 @@ export function LimeRadio() {
   useEffect(() => {
     const fetchNowPlaying = async () => {
       try {
-        const response = await fetch(`https://radio.limeradio.net/api/nowplaying/lime?t=${new Date().toISOString()}`);
-        const data = await response.json()
+        const response = await fetch(`/api/stats?t=${new Date().toISOString()}`);
+        const x = await response.json()
+        const data = x.data
         setNowPlaying({
           title: data.now_playing.song.title,
           artist: data.now_playing.song.artist,
@@ -52,7 +53,7 @@ export function LimeRadio() {
     }
 
     fetchNowPlaying()
-    const interval = setInterval(fetchNowPlaying, 200)
+    const interval = setInterval(fetchNowPlaying, 3000)
     return () => clearInterval(interval)
   }, [])
 

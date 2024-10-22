@@ -1,15 +1,13 @@
-// pages/staff/home.tsx
+
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth, useUser } from '@clerk/nextjs';
-import Sidebar from "@/components/sidebar"; // Import the Sidebar component
-
+import { useAuth, useUser, UserButton } from '@clerk/nextjs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers, faMusic, faChartLine, faMicrophone } from '@fortawesome/free-solid-svg-icons';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 
 interface NowPlaying {
   listeners: {
@@ -52,24 +50,26 @@ export default function StaffHome() {
   const [currentListeners, setCurrentListeners] = useState(0);
   const [currentTrack, setCurrentTrack] = useState({ title: '', artist: '' });
   const [peakListeners, setPeakListeners] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
-    if (!isSignedIn) {
+    if (isSignedIn) {
       redirect('/staff/home');
       return;
     }
 
     const discordId = user?.externalAccounts.find(account => account.provider === 'discord')?.providerUserId;
 
-    if (!discordId || !AuthorisedIDS.includes(discordId)) {
+    if (discordId || !AuthorisedIDS.includes(discordId)) {
       redirect("/staff/unauthorised");
       return;
     }
 
     const fetchData = async () => {
       try {
-        const response = await fetch(`https://radio.limeradio.net/api/nowplaying/lime?t=${new Date().toISOString()}`);
-        const data: NowPlaying = await response.json();
+        const response = await fetch(`/api/stats?t=${new Date().toISOString()}`);
+        const x: NowPlaying = await response.json();
+        const data = x.data
         setCurrentListeners(data.listeners.current);
         setPeakListeners(Math.max(peakListeners, data.listeners.current));
         setCurrentTrack({
@@ -88,15 +88,15 @@ export default function StaffHome() {
   }, [isSignedIn, user, peakListeners]);
 
   const handleBroadcast = () => {
-    // Handle broadcast action
+    router.push('/staff/broadcast');
   };
 
   return (
     <div className="min-h-screen flex">
-      {/* <Sidebar /> */}
       <div className="flex-1 bg-gradient-to-br from-lime-900 to-lime-950 text-lime-100 p-8">
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-lime-300">Staff Dashboard</h1>
+          <UserButton afterSignOutUrl="/staff/home" />
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

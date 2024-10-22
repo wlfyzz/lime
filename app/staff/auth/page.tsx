@@ -35,9 +35,9 @@ export default function SignInPage() {
 
           <SignedOut>
             <SignInButton>
-              Sign In
+              Log in.
             </SignInButton>
-            <AutoSignIn /> {/* Only rendered when signed out */}
+            <AutoSignIn />
           </SignedOut>
         </div>
       </div>
