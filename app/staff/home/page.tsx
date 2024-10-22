@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { redirect, useRouter } from 'next/navigation';
 
 interface NowPlaying {
+data{
   listeners: {
     current: number;
     unique: number;
@@ -41,7 +42,7 @@ interface NowPlaying {
       custom_fields: Array<any>;
     };
   };
-}
+}}
 
 export default function StaffHome() {
   const AuthorisedIDS = ["1137093225576935485"];
