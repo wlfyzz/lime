@@ -69,11 +69,11 @@ export default function StaffHome() {
       try {
         const response = await fetch(`/api/stats?t=${new Date().toISOString()}`);
         const x: NowPlaying = await response.json();
-        setCurrentListeners(data.data.listeners.current);
-        setPeakListeners(Math.max(peakListeners, data.data.listeners.current));
+        setCurrentListeners(data.listeners.current);
+        setPeakListeners(Math.max(peakListeners, data.listeners.current));
         setCurrentTrack({
-          title: data.data.now_playing.song.title,
-          artist: data.data.now_playing.song.artist,
+          title: data.now_playing.song.title,
+          artist: data.now_playing.song.artist,
         });
       } catch (error) {
         console.error('Failed to fetch data:', error);
