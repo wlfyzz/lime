@@ -42,7 +42,7 @@ data{
       custom_fields: Array<any>;
     };
   };
-}}
+};}
 
 export default function StaffHome() {
   const AuthorisedIDS = ["1137093225576935485"];
