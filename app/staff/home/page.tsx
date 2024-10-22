@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { redirect, useRouter } from 'next/navigation';
 
 interface NowPlaying {
-data{
   listeners: {
     current: number;
     unique: number;
@@ -42,7 +41,7 @@ data{
       custom_fields: Array<any>;
     };
   };
-};}
+}
 
 export default function StaffHome() {
   const AuthorisedIDS = ["1137093225576935485"];
@@ -70,12 +69,11 @@ export default function StaffHome() {
       try {
         const response = await fetch(`/api/stats?t=${new Date().toISOString()}`);
         const x: NowPlaying = await response.json();
-        const data = x.data
-        setCurrentListeners(data.listeners.current);
-        setPeakListeners(Math.max(peakListeners, data.listeners.current));
+        setCurrentListeners(data.data.listeners.current);
+        setPeakListeners(Math.max(peakListeners, data.data.listeners.current));
         setCurrentTrack({
-          title: data.now_playing.song.title,
-          artist: data.now_playing.song.artist,
+          title: data.data.now_playing.song.title,
+          artist: data.data.now_playing.song.artist,
         });
       } catch (error) {
         console.error('Failed to fetch data:', error);
