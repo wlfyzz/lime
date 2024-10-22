@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -43,6 +42,10 @@ interface NowPlaying {
   };
 }
 
+interface ApiResponse {
+  data: NowPlaying;
+}
+
 export default function StaffHome() {
   const AuthorisedIDS = ["1137093225576935485"];
   const { isSignedIn } = useAuth();
@@ -53,7 +56,7 @@ export default function StaffHome() {
   const router = useRouter();
 
   useEffect(() => {
-    if (isSignedIn) {
+    if (!isSignedIn) {
       redirect('/staff/home');
       return;
     }
@@ -68,13 +71,16 @@ export default function StaffHome() {
     const fetchData = async () => {
       try {
         const response = await fetch(`/api/stats?t=${new Date().toISOString()}`);
-        const x: NowPlaying = await response.json();
-        setCurrentListeners(x.data.listeners.current);
-        setPeakListeners(Math.max(peakListeners, x.data.listeners.current));
-        setCurrentTrack({
-          title: x.data.now_playing.song.title,
-          artist: x.data.now_playing.song.artist,
-        });
+        const x: ApiResponse = await response.json();
+        
+        if (x.data) {
+          setCurrentListeners(x.data.listeners.current);
+          setPeakListeners(prev => Math.max(prev, x.data.listeners.current));
+          setCurrentTrack({
+            title: x.data.now_playing.song.title,
+            artist: x.data.now_playing.song.artist,
+          });
+        }
       } catch (error) {
         console.error('Failed to fetch data:', error);
       }
@@ -84,7 +90,7 @@ export default function StaffHome() {
     const interval = setInterval(fetchData, 20000);
     
     return () => clearInterval(interval);
-  }, [isSignedIn, user, peakListeners]);
+  }, [isSignedIn, user]);
 
   const handleBroadcast = () => {
     router.push('/staff/broadcast');
