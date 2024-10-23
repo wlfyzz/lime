@@ -91,7 +91,7 @@ export function LimeRadio() {
         audioRef.current = null
       }
     } else {
-      audioRef.current = new Audio('/mp3')
+      audioRef.current = new Audio('https://radio.limeradio.net:8000/radio.mp3')
       audioRef.current.volume = isMuted ? 0 : volume
       audioRef.current.play()
     }
