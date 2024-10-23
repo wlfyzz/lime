@@ -1,6 +1,5 @@
 export async function GET(request: Request) {
   try {
-    // Fetch data from AzuraCast
     const externalRes = await fetch(
       `https://radio.limeradio.net/api/nowplaying/lime?t=${new Date().toISOString()}`, { cache: "no-store" }
     );
