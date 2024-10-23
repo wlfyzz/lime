@@ -13,8 +13,8 @@ export async function GET(request: Request) {
       method: 'POST',
       body: new URLSearchParams({
         'grant_type': 'client_credentials',
-        'client_id': process.env.spotify_client_id,
-        'client_secret': process.env.spotify_client_secret
+        'client_id': process.env.spotify_client_id || "",
+        'client_secret': process.env.spotify_client_secret || ""
       })
     });
     const json = await data.json()
