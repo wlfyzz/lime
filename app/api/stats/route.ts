@@ -1,7 +1,7 @@
 export async function GET(request: Request) {
   try {
     const externalRes = await fetch(
-      `https://radio.limeradio.net/api/nowplaying/lime?t=${new Date().toISOString()}`, { cache: "no-store" }
+      `${process.env.radio}/api/nowplaying/lime?t=${new Date().toISOString()}`, { cache: "no-store" }
     );
     if (!externalRes.ok) {
       throw new Error(`Failed to fetch: ${externalRes.statusText}`);
@@ -13,8 +13,8 @@ export async function GET(request: Request) {
       method: 'POST',
       body: new URLSearchParams({
         'grant_type': 'client_credentials',
-        'client_id': '7a18eb12401c4d0387c1355fe10278a8',
-        'client_secret': '05425579d1ad405e8c710cc2dc2dfa6a'
+        'client_id': process.env.spotify_client_id,
+        'client_secret': process.env.spotify_client_secret
       })
     });
     const json = await data.json()
