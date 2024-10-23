@@ -34,7 +34,8 @@ export async function GET(request: Request) {
     }
     const spotifyData = await spotifyRes.json();
     const iconUrl = spotifyData.tracks.items[0]?.album.images[0]?.url;
-    azuracastData.now_playing.song.art = iconUrl
+    if (!azuracastData.now_playing.playlist) {
+    azuracastData.now_playing.song.art = iconUrl}
 
     const repackagedData = {
       data: {
