@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faVolumeHigh, faVolumeMute, faPause, faPlay, faComment, faUser, faMusic } from '@fortawesome/free-solid-svg-icons'
+import { faVolumeHigh, faVolumeMute, faPause, faPlay, faComment, faUser, faMusic, faBolt } from '@fortawesome/free-solid-svg-icons'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
+import Image from "next/image";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -21,6 +22,9 @@ export function LimeRadio() {
     title: string;
     artist: string;
     albumArt: string;
+  } | null>(null)
+  const [liveDJ, setLiveDJ] = useState<{
+    name: string; avatar: string;
   } | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [volume, setVolume] = useState(() => {
@@ -47,8 +51,21 @@ export function LimeRadio() {
           artist: data.now_playing.song.artist,
           albumArt: data.now_playing.song.art
         })
+        if (data.live.is_live) {
+          setLiveDJ({
+            name: data.live.streamer_name,
+            avatar: data.live.avatar_url
+          })
+        } else {
+          setLiveDJ({name: "Lime DJ", avatar: "/favicon.ico"})
+        }
       } catch (error) {
-        console.error('Failed to fetch now playing data', error)
+        setNowPlaying({
+          title: "Lime Radio",
+          artist: "Lime Radio",
+          albumArt: "/favicon.ico"
+        })
+        setLiveDJ({name: "Lime DJ", avatar: "/favicon.ico"})
       }
     }
 
@@ -66,7 +83,7 @@ export function LimeRadio() {
 
   const togglePlay = () => {
     setIsAnimating(true)
-    setTimeout(() => setIsAnimating(false), 300) // Animation duration
+    setTimeout(() => setIsAnimating(false), 300) 
 
     if (isPlaying) {
       if (audioRef.current) {
@@ -74,8 +91,7 @@ export function LimeRadio() {
         audioRef.current = null
       }
     } else {
-      // Create a new audio stream
-      audioRef.current = new Audio('https://audio.limeradio.net:8000/radio.mp3')
+      audioRef.current = new Audio('/mp3')
       audioRef.current.volume = isMuted ? 0 : volume
       audioRef.current.play()
     }
@@ -96,7 +112,6 @@ export function LimeRadio() {
   }
 
   const handleRequest = () => {
-    // Here you would typically send the request to your backend
     console.log(`Song request: ${requestSong} by ${requestName}`)
     setIsRequestOpen(false)
     setRequestName('')
@@ -113,14 +128,32 @@ export function LimeRadio() {
       )}
       <div className="text-center relative z-10">
         <h1 className="text-4xl font-bold text-lime-300 mb-8">Lime Radio</h1>
+        <div className="mb-4 relative">
+          {nowPlaying && (
+            <img src={nowPlaying.albumArt} alt="Album Art" className="w-64 h-64 rounded-full mx-auto shadow-lg" />
+          )}
+          {liveDJ && (
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
+              <div className="bg-purple-900 rounded-full py-2 px-4 flex items-center space-x-2">
+                <Image 
+                  src={liveDJ.avatar} 
+                  width={24} 
+                  height={24} 
+                  alt={`${liveDJ.name}'s avatar`}
+                  className="rounded-full"
+                />
+                <span className="text-white font-semibold">{liveDJ.name}</span>
+              </div>
+            </div>
+          )}
+        </div>
         {nowPlaying && (
-          <div className="mb-8">
-            <img src={nowPlaying.albumArt} alt="Album Art" className="w-64 h-64 rounded-full mx-auto mb-4 shadow-lg" />
+          <div className="mt-8">
             <div className="text-lime-100 font-bold text-2xl mb-2">{nowPlaying.title}</div>
             <div className="text-lime-300 text-xl">{nowPlaying.artist}</div>
           </div>
         )}
-        <div className="mb-8 flex items-center justify-center space-x-4">
+        <div className="mt-8 mb-8 flex items-center justify-center space-x-4">
           <button 
             className="text-lime-300 hover:text-lime-100"
             onClick={toggleMute}

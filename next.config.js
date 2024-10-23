@@ -14,8 +14,8 @@ const nextConfig = {
       
       return [
         {
-          source: '/api/auth/:path*',
-          destination: '/api/auth/:path*',
+          source: '/mp3',
+          destination: 'https://radio.limeradio.net:8000/radio.mp3',
         },
       ]
     },
