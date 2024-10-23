@@ -9,7 +9,6 @@ export async function GET(request: Request) {
     }
     const azuracastData = await externalRes.json();
     const title = azuracastData.now_playing.song.title;
-    console.log(title)
     const artist = azuracastData.now_playing.song.artist;
     const data = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
