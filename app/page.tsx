@@ -1,5 +1,5 @@
 import { LimeRadio } from "@/components/lime-radio"
 
-export default function Page() {
+export default async function Page() {
   return <LimeRadio />
 }
