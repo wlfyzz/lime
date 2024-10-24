@@ -11,6 +11,12 @@ async function getAll(table: string): Promise<Record[]> {
     if (error) throw error;
     return data;
 }
+async function getStaffByID(id: number): Promise<Record | null> {
+    const { data, error } = await supabase.from("staff").select().eq('userid', id).single();
+    if (error) throw error;
+    return data || "";
+}
+
 
 async function getById(table: string, id: number): Promise<Record | null> {
     const { data, error } = await supabase.from(table).select().eq('id', id).single();
@@ -35,4 +41,4 @@ async function deleteById(table: string, id: number): Promise<Record | null> {
     return data;
 }
 
-export { getAll, getById, insert, update, deleteById };
+export { getAll, getById, insert, update, deleteById, getStaffByID };

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { getAll, deleteById } from "@/functions/Supabase"
+import { getAll, deleteById, getStaffByID } from "@/functions/Supabase"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Trash2, RefreshCw } from "lucide-react"
@@ -78,6 +78,8 @@ export default function StaffPortal() {
     }
 
     const discordId = user?.externalAccounts.find(account => account.provider === 'discord')?.providerUserId;
+    const dbUser = getStaffByID(Number(discordId));
+    console.log(dbUser)
 
     if (!discordId || !AuthorisedIDS.includes(discordId)) {
       redirect("/staff/unauthorised");
