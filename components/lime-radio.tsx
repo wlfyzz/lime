@@ -16,6 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import RequestModal from './Request'
 
 export function LimeRadio() {
   const [nowPlaying, setNowPlaying] = useState<{
@@ -171,46 +172,7 @@ export function LimeRadio() {
           />
         </div>
         <div className="flex justify-center items-center space-x-6">
-          <Dialog open={isRequestOpen} onOpenChange={setIsRequestOpen}>
-            <DialogTrigger asChild>
-              <button className="text-lime-300 hover:text-lime-100">
-                <FontAwesomeIcon icon={faComment} size="lg" />
-              </button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] bg-gray-800 text-gray-100 border-lime-500">
-              <DialogHeader>
-                <DialogTitle className="text-lime-300">Song Request</DialogTitle>
-                <DialogDescription className="text-gray-400">
-                  Make a song request. We'll try our best to play it!
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="flex items-center gap-4">
-                  <FontAwesomeIcon icon={faUser} className="text-lime-300" />
-                  <Input
-                    id="name"
-                    value={requestName}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRequestName(e.target.value)}
-                    className="flex-1 bg-gray-700 border-gray-600 text-gray-100"
-                    placeholder="Your name"
-                  />
-                </div>
-                <div className="flex items-center gap-4">
-                  <FontAwesomeIcon icon={faMusic} className="text-lime-300" />
-                  <Input
-                    id="song"
-                    value={requestSong}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRequestSong(e.target.value)}
-                    className="flex-1 bg-gray-700 border-gray-600 text-gray-100"
-                    placeholder="Song name"
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit" onClick={handleRequest} className="bg-lime-500 hover:bg-lime-400 text-gray-900">Submit request</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <RequestModal/>
           <button 
             onClick={togglePlay} 
             className={`bg-lime-500 hover:bg-lime-400 text-lime-900 rounded-full p-4 transition-transform duration-300 ${isAnimating ? 'scale-90' : ''}`}

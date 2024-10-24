@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth, useUser, UserButton } from '@clerk/nextjs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUsers, faMusic, faChartLine, faMicrophone } from '@fortawesome/free-solid-svg-icons';
+import { faMusic, faClock, faUser, faHome, faBroadcastTower, faChartLine, faUsers, faCog, faMicrophone } from '@fortawesome/free-solid-svg-icons'
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { redirect, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation'
 
 interface NowPlaying {
   listeners: {
@@ -40,6 +42,48 @@ interface NowPlaying {
       custom_fields: Array<any>;
     };
   };
+}
+
+interface SidebarItemProps {
+  icon: typeof faHome
+  href: string
+  label: string
+}
+
+const SidebarItem: React.FC<SidebarItemProps> = ({ icon, href, label }) => {
+  const pathname = usePathname()
+  const isActive = pathname === href
+
+  return (
+    <Link 
+      href={href} 
+      className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+        isActive ? 'bg-lime-800 text-lime-100' : 'text-lime-300 hover:bg-lime-800 hover:text-lime-100'
+      }`}
+    >
+      <FontAwesomeIcon icon={icon} className="w-5 h-5" />
+      <span>{label}</span>
+    </Link>
+  )
+}
+
+const Sidebar: React.FC = () => {
+  const sidebarItems: SidebarItemProps[] = [
+    { icon: faHome, href: "/staff/home", label: "Dashboard" },
+    { icon: faMusic, href: "/staff/requests", label: "Song Requests" },
+    { icon: faBroadcastTower, href: "/staff/broadcast", label: "Broadcast" },
+    { icon: faChartLine, href: "/staff/analytics", label: "Analytics" },
+    { icon: faUsers, href: "/staff/users", label: "User Management" },
+    { icon: faCog, href: "/staff/settings", label: "Settings" },
+  ]
+
+  return (
+    <div className="w-64 bg-lime-950 p-4 space-y-4">
+      {sidebarItems.map((item, index) => (
+        <SidebarItem key={index} {...item} />
+      ))}
+    </div>
+  )
 }
 
 interface ApiResponse {
@@ -98,6 +142,7 @@ export default function StaffHome() {
 
   return (
     <div className="min-h-screen flex">
+      <Sidebar/>
       <div className="flex-1 bg-gradient-to-br from-lime-900 to-lime-950 text-lime-100 p-8">
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-lime-300">Staff Dashboard</h1>

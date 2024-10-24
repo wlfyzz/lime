@@ -1,6 +1,6 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-const supabase: SupabaseClient = createClient(process.env.supabase_url as string, process.env.supabase_secret as string);
+const supabase: SupabaseClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL as string, process.env.NEXT_PUBLIC_SUPABASE_SECRET as string);
 
 interface Record {
     [key: string]: any;
