@@ -39,7 +39,8 @@ export async function GET(request: Request) {
     const repackagedData = {
       data: {
       now_playing: azuracastData.now_playing,
-      live: azuracastData.live
+      live: azuracastData.live,
+      listeners: azuracastData.listeners
     }}
     return new Response(JSON.stringify(repackagedData), {
       status: 200,
