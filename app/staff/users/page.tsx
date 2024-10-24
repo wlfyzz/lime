@@ -85,36 +85,34 @@ export default function StaffPortal() {
       setIsLoading(false)
     }
   }
-
   useEffect(() => {
     const fetchData = async () => {
       if (!isSignedIn) {
         redirect('/staff/auth');
         return;
       }
-
+  
       const discordId = user?.externalAccounts.find(account => account.provider === 'discord')?.providerUserId;
-
+  
       if (!discordId) {
         redirect("/staff/unauthorised");
         return;
       }
-
+  
       const dbUser = await getStaffByID(discordId);
-      if (!dbUser || !dbUser.managmentPermission || !AuthorisedIDS.includes(discordId)) {
+      if (!dbUser || !dbUser.managementPermission || !AuthorisedIDS.includes(discordId)) {
         redirect("/staff/unauthorised");
         return;
       }
-
-      fetchUsers();
+  
+      await fetchUsers();
     };
-    
+  
     if (isSignedIn && user) {
-      fetchData();
+      fetchData().catch((err) => console.error("Error in fetchData:", err));
     }
   }, [isSignedIn, user]);
-
-  const handleDelete = async (id: number) => {
+    const handleDelete = async (id: number) => {
     try {
       await deleteById("staff", id)
       setUsers(users.filter(u => u.id !== id))
