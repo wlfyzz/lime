@@ -88,7 +88,7 @@ export default function StaffPortal() {
 
   useEffect(() => {
     async function fetchData() {
-      if (isSignedIn) {
+      if (!isSignedIn) {
         redirect('/staff/auth');
         return;
       }
