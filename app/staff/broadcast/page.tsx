@@ -72,7 +72,7 @@ export default function StaffPortal() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (isSignedIn) {
+    if (!isSignedIn) {
       redirect('/staff/auth');
       return;
     }
