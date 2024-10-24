@@ -1,8 +1,8 @@
-"use client"
+"use client";
 import { useEffect, useState } from "react";
 import { getStaffByID } from "@/functions/Supabase";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMusic, faHome, faBroadcastTower, faChartLine, faUsers, faCog } from '@fortawesome/free-solid-svg-icons';
+import { faMusic, faHome, faBroadcastTower, faChartLine, faUsers, faCog, faEye, faEyeSlash, faCopy } from '@fortawesome/free-solid-svg-icons';
 import { useAuth, UserButton, useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -68,6 +68,7 @@ export default function StaffPortal() {
   const [connectionInfo, setConnectionInfo] = useState<StaffInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -84,7 +85,7 @@ export default function StaffPortal() {
 
     const fetchConnectionInfo = async () => {
       try {
-        const info = await getStaffByID("1137093225576935485");
+        const info = await getStaffByID(discordId);
         setConnectionInfo(info as StaffInfo);
         setIsLoading(false);
       } catch (err) {
@@ -96,6 +97,14 @@ export default function StaffPortal() {
 
     fetchConnectionInfo();
   }, [isSignedIn, user]);
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Password copied to clipboard!');
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
+    });
+  };
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-lime-900 to-lime-950 text-lime-100">
@@ -139,7 +148,26 @@ export default function StaffPortal() {
                     </tr>
                     <tr>
                       <td className="px-4 py-2 border-b border-lime-600">Password</td>
-                      <td className="px-4 py-2 border-b border-lime-600">{connectionInfo?.credentials ?? 'N/A'}</td>
+                      <td className="px-4 py-2 border-b border-lime-600 relative">
+                        <span className={`absolute inset-0 bg-lime-900 transition-all duration-300 ${passwordVisible ? 'opacity-0' : 'opacity-100'}`}>
+                          {connectionInfo?.credentials ?? 'N/A'}
+                        </span>
+                        <span className={`absolute inset-0 transition-all duration-300 ${passwordVisible ? 'opacity-100' : 'opacity-0'}`}>
+                          {passwordVisible ? connectionInfo?.credentials : '••••••••••'}
+                        </span>
+                        <button 
+                          className="ml-2 text-lime-300" 
+                          onClick={() => setPasswordVisible(!passwordVisible)}
+                        >
+                          <FontAwesomeIcon icon={passwordVisible ? faEyeSlash : faEye} />
+                        </button>
+                        <button 
+                          className="ml-2 text-lime-300" 
+                          onClick={() => copyToClipboard(connectionInfo?.credentials ?? '')}
+                        >
+                          <FontAwesomeIcon icon={faCopy} />
+                        </button>
+                      </td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 border-b border-lime-600">Azuracast User ID</td>
