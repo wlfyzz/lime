@@ -78,7 +78,7 @@ export default function StaffPortal() {
     }
 
     const discordId = user?.externalAccounts.find(account => account.provider === 'discord')?.providerUserId;
-    const dbUser = getStaffByID(Number(discordId));
+    const dbUser = getStaffByID(discordId);
     console.log(discordId)
     console.log(dbUser)
 

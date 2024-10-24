@@ -11,7 +11,7 @@ async function getAll(table: string): Promise<Record[]> {
     if (error) throw error;
     return data;
 }
-async function getStaffByID(id: number): Promise<Record | null> {
+async function getStaffByID(id: string): Promise<Record | null> {
     const { data, error } = await supabase.from("staff").select().eq('userid', id)
     if (error) throw error;
     return data || "";
