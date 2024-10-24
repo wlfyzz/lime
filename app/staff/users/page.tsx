@@ -12,6 +12,7 @@ import { useAuth, UserButton, useUser } from '@clerk/nextjs'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { redirect } from 'next/navigation';
+import { useRouter } from 'next/router';
 
 interface User {
   id: number
@@ -71,6 +72,7 @@ export default function StaffPortal() {
   const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter();
 
   const fetchUsers = async () => {
     setIsLoading(true)
@@ -86,29 +88,36 @@ export default function StaffPortal() {
     }
   }
 
-  useEffect(() => {
-    async function fetchData() {
-      if (!isSignedIn) {
-        redirect('/staff/auth');
-        return;
-      }
+const router = useRouter();
 
-      const discordId = user?.externalAccounts.find(account => account.provider === 'discord')?.providerUserId;
-      const dbUser = await getStaffByID(discordId || "");
-
-      if (!dbUser || !dbUser.managmentPermission ) {
-        redirect("/staff/unauthorised");
-        return;
-      }
-
-      if (!discordId || !AuthorisedIDS.includes(discordId)) {
-         redirect("/staff/unauthorised");
-         return;
-      }
-      fetchUsers();
+useEffect(() => {
+  const fetchData = async () => {
+    if (!isSignedIn) {
+      router.push('/staff/auth');
+      return;
     }
+
+    const discordId = user?.externalAccounts.find(account => account.provider === 'discord')?.providerUserId;
+
+    if (!discordId) {
+      router.push("/staff/unauthorised");
+      return;
+    }
+
+    const dbUser = await getStaffByID(discordId);
+    if (!dbUser || !dbUser.managmentPermission || !AuthorisedIDS.includes(discordId)) {
+      router.push("/staff/unauthorised");
+      return;
+    }
+
+    fetchUsers();
+  };
+  
+  if (isSignedIn && user) {
     fetchData();
-  }, [isSignedIn, user]);
+  }
+}, [isSignedIn, user]);
+
 
   const handleDelete = async (id: number) => {
     try {
