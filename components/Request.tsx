@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { MessageSquare, Loader2, CheckCircle } from "lucide-react"
 import { insert } from "@/functions/Supabase"
 import { AnimatePresence, motion } from "framer-motion"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 export default function RequestModal() {
   const [isOpen, setIsOpen] = useState(false)
@@ -55,9 +56,9 @@ export default function RequestModal() {
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="icon">
-            <MessageSquare className="h-4 w-4" />
-          </Button>
+        <Button variant="ghost" size="icon">
+  <MessageSquare className="h-4 w-4 outline-none text-lime-300 hover:text-lime-100" />
+</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px] bg-zinc-900 text-zinc-100 border-zinc-800">
           <DialogHeader>

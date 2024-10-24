@@ -101,7 +101,7 @@ export default function StaffHome() {
 
   useEffect(() => {
     if (!isSignedIn) {
-      redirect('/staff/home');
+      redirect('/staff/auth');
       return;
     }
 

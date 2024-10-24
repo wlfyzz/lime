@@ -9,9 +9,10 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMusic, faClock, faUser, faHome, faBroadcastTower, faChartLine, faUsers, faCog } from '@fortawesome/free-solid-svg-icons'
-import { UserButton } from '@clerk/nextjs'
+import { useAuth, UserButton, useUser } from '@clerk/nextjs'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { redirect } from 'next/navigation';
 
 interface Request {
   id: number
@@ -63,6 +64,9 @@ const Sidebar: React.FC = () => {
 }
 
 export default function StaffPortal() {
+  const AuthorisedIDS = ["1137093225576935485"];
+  const { isSignedIn } = useAuth();
+  const { user } = useUser();
   const [requests, setRequests] = useState<Request[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -82,6 +86,17 @@ export default function StaffPortal() {
   }
 
   useEffect(() => {
+    if (isSignedIn) {
+      redirect('/staff/auth');
+      return;
+    }
+
+    const discordId = user?.externalAccounts.find(account => account.provider === 'discord')?.providerUserId;
+
+    if (!discordId || !AuthorisedIDS.includes(discordId)) {
+      redirect("/staff/unauthorised");
+      return;
+    }
     fetchRequests()
   }, [])
 
@@ -119,9 +134,9 @@ export default function StaffPortal() {
       <Sidebar />
       <div className="flex-1 p-8">
         <header className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-lime-300">Staff Portal - Song Requests</h1>
+          <h1 className="text-3xl font-bold text-lime-300">Requests</h1>
           <div className="flex items-center space-x-4">
-            <Button onClick={fetchRequests} variant="outline" size="icon" className="text-lime-300 border-lime-300 hover:bg-lime-800">
+            <Button onClick={fetchRequests} size="icon" variant="ghost" className="text-lime-300 border-lime-300 hover:bg-lime-800">
               <RefreshCw className="h-4 w-4" />
               <span className="sr-only">Refresh requests</span>
             </Button>
