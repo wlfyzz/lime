@@ -87,9 +87,6 @@ export default function StaffPortal() {
       setIsLoading(false)
     }
   }
-
-const router = useRouter();
-
 useEffect(() => {
   const fetchData = async () => {
     if (!isSignedIn) {
