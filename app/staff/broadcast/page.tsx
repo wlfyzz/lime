@@ -1,35 +1,33 @@
-'use client'
-
-import { useEffect, useState } from "react"
-import { getAll, deleteById, getStaffByID } from "@/functions/Supabase"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Trash2, RefreshCw } from "lucide-react"
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMusic, faClock, faUser, faHome, faBroadcastTower, faChartLine, faUsers, faCog } from '@fortawesome/free-solid-svg-icons'
-import { useAuth, UserButton, useUser } from '@clerk/nextjs'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+"use client"
+import { useEffect, useState } from "react";
+import { getStaffByID } from "@/functions/Supabase";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMusic, faHome, faBroadcastTower, faChartLine, faUsers, faCog } from '@fortawesome/free-solid-svg-icons';
+import { useAuth, UserButton, useUser } from '@clerk/nextjs';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { redirect } from 'next/navigation';
 
-interface Request {
-  id: number
-  by: string
-  song: string
-  created_at: string
+interface StaffInfo {
+  id: number;
+  name: string;
+  userid: string;
+  broadcaster: boolean;
+  credentials: string;
+  managementPermission: boolean;
+  active: boolean;
+  azuracastUserID: number;
 }
 
 interface SidebarItemProps {
-  icon: typeof faHome
-  href: string
-  label: string
+  icon: any;
+  href: string;
+  label: string;
 }
 
 const SidebarItem: React.FC<SidebarItemProps> = ({ icon, href, label }) => {
-  const pathname = usePathname()
-  const isActive = pathname === href
+  const pathname = usePathname();
+  const isActive = pathname === href;
 
   return (
     <Link 
@@ -41,8 +39,8 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, href, label }) => {
       <FontAwesomeIcon icon={icon} className="w-5 h-5" />
       <span>{label}</span>
     </Link>
-  )
-}
+  );
+};
 
 const Sidebar: React.FC = () => {
   const sidebarItems: SidebarItemProps[] = [
@@ -52,7 +50,7 @@ const Sidebar: React.FC = () => {
     { icon: faChartLine, href: "/staff/analytics", label: "Analytics" },
     { icon: faUsers, href: "/staff/users", label: "User Management" },
     { icon: faCog, href: "/staff/settings", label: "Settings" },
-  ]
+  ];
 
   return (
     <div className="w-64 bg-lime-950 p-4 space-y-4">
@@ -60,16 +58,16 @@ const Sidebar: React.FC = () => {
         <SidebarItem key={index} {...item} />
       ))}
     </div>
-  )
-}
+  );
+};
 
 export default function StaffPortal() {
   const AuthorisedIDS = ["1137093225576935485"];
   const { isSignedIn } = useAuth();
   const { user } = useUser();
-  const [requests, setRequests] = useState<Request[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [connectionInfo, setConnectionInfo] = useState<StaffInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -78,34 +76,82 @@ export default function StaffPortal() {
     }
 
     const discordId = user?.externalAccounts.find(account => account.provider === 'discord')?.providerUserId;
-    const dbUser = getStaffByID(discordId || "");
-    console.log(discordId)
-    console.log(dbUser)
 
     if (!discordId || !AuthorisedIDS.includes(discordId)) {
       redirect("/staff/unauthorised");
       return;
     }
-  }, [])
-  
+
+    const fetchConnectionInfo = async () => {
+      try {
+        const info = await getStaffByID("1137093225576935485");
+        setConnectionInfo(info as StaffInfo);
+        setIsLoading(false);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load connection info.");
+        setIsLoading(false);
+      }
+    };
+
+    fetchConnectionInfo();
+  }, [isSignedIn, user]);
 
   return (
-    
     <div className="flex min-h-screen bg-gradient-to-br from-lime-900 to-lime-950 text-lime-100">
       <Sidebar />
       <div className="flex-1 p-8">
         <header className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-lime-300">Broadcast information.</h1>
+          <h1 className="text-3xl font-bold text-lime-300">Broadcast Information</h1>
           <div className="flex items-center space-x-4">
             <UserButton afterSignOutUrl="/staff/home" />
           </div>
         </header>
-        <ToastContainer 
-          position="bottom-right" 
-          theme="dark"
-          toastClassName="bg-lime-950 text-lime-100"
-        />
+
+        <div className="mt-8">
+          {isLoading ? (
+            <p className="text-lime-200">Loading connection info...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : (
+            <>
+              <div className="bg-red-600 text-white p-4 rounded-lg mb-4">
+                <strong>Warning:</strong> Sharing your connection info will result in termination.
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-lime-800 rounded-lg">
+                  <tbody>
+                    <tr>
+                      <td className="px-4 py-2 border-b border-lime-600">Server</td>
+                      <td className="px-4 py-2 border-b border-lime-600">radio.limeradio.net</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2 border-b border-lime-600">Username</td>
+                      <td className="px-4 py-2 border-b border-lime-600">{connectionInfo?.name ?? 'N/A'}</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2 border-b border-lime-600">Port</td>
+                      <td className="px-4 py-2 border-b border-lime-600">8005</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2 border-b border-lime-600">Type</td>
+                      <td className="px-4 py-2 border-b border-lime-600">Icecast</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2 border-b border-lime-600">Password</td>
+                      <td className="px-4 py-2 border-b border-lime-600">{connectionInfo?.credentials ?? 'N/A'}</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2 border-b border-lime-600">Azuracast User ID</td>
+                      <td className="px-4 py-2 border-b border-lime-600">{connectionInfo?.azuracastUserID ?? 'N/A'}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
-  )
+  );
 }
