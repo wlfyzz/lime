@@ -8,7 +8,7 @@ export async function POST(request: Request) {
 
     const apiKey = request.headers.get('x-api-key');
 
-    if (apiKey !== process.env.NEXT_PUBLIC_AZURACAST_API_KEY) {
+    if (apiKey !== process.env.NEXT_PUBLIC_API_KEY) {
         return new Response(JSON.stringify({ message: "Unauthorized" }), {
             status: 403,
             headers: {
